@@ -1,4 +1,5 @@
 from __future__ import print_function
+import argparse
 import os
 import ssl
 import sys
@@ -82,37 +83,44 @@ class Migrator:
         return migration_file.read()
 
 
-DEFAULT_MIGRATIONS_PATH = './migrations'
 CONFIG_FILE_PATH = 'config/cassandra.yml'
 
 
 def main():
-    if '--help' in sys.argv or '-h' in sys.argv:
-        print('Usage: cdeploy [path/to/migrations] [--undo]')
+    args = parse_args(sys.argv[1:])
+
+    if (invalid_migrations_dir(args.migrations_path) or
+            missing_config(args.migrations_path)):
         return
 
-    undo = False
-    if '--undo' in sys.argv:
-        undo = True
-        sys.argv.remove('--undo')
-
-    migrations_path = (
-        DEFAULT_MIGRATIONS_PATH if len(sys.argv) == 1 else sys.argv[1]
-    )
-
-    if (invalid_migrations_dir(migrations_path) or
-            missing_config(migrations_path)):
-        return
-
-    config = load_config(migrations_path, os.getenv('ENV'))
+    config = load_config(args.migrations_path, os.getenv('ENV'))
 
     session = get_session(config)
-    migrator = Migrator(migrations_path, session)
+    migrator = Migrator(args.migrations_path, session)
 
-    if undo:
+    if args.undo:
         migrator.undo()
     else:
         migrator.run_migrations()
+
+
+def parse_args(args):
+    parser = argparse.ArgumentParser(description='Cassandra migration utility')
+    parser.add_argument(
+        '--undo',
+        action='store_true',
+        default=False,
+        dest='undo',
+        help='set mode to undo migration',
+    )
+    parser.add_argument(
+        'migrations_path',
+        action='store',
+        default='./migrations',
+        help='path to the migrations folder',
+        nargs='?'
+    )
+    return parser.parse_args(args)
 
 
 def get_session(config):

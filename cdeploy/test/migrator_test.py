@@ -198,5 +198,33 @@ class SessionTests(unittest.TestCase):
         )
 
 
+class ArgsTests(unittest.TestCase):
+
+    def test_undo(self):
+        args = ["--undo"]
+        parsed_args = migrator.parse_args(args)
+
+        self.assertTrue(parsed_args.undo)
+
+    def test_migrations_path(self):
+        args = ["test"]
+        parsed_args = migrator.parse_args(args)
+
+        self.assertEqual(
+            "test",
+            parsed_args.migrations_path
+        )
+
+    def test_invalid_optional_arg(self):
+        args = ["--test"]
+        with self.assertRaises(SystemExit):
+            migrator.parse_args(args)
+
+    def test_invalid_pos_args(self):
+        args = ["test", "test_again"]
+        with self.assertRaises(SystemExit):
+            migrator.parse_args(args)
+
+
 if __name__ == '__main__':
     unittest.main()
