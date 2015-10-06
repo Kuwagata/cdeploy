@@ -1,13 +1,13 @@
 development:
-    hosts: [cassandra.local]
+    hosts: [cassandra.local, localhost, 127.0.0.1]
     keyspace: migrations_development
 
 test:
-    hosts: [cassandra.local]
+    hosts: [cassandra.local, localhost, 127.0.0.1]
     keyspace: migrations_test
 
 keyspace:
-    hosts: [cassandra.local]
+    hosts: [cassandra.local, localhost, 127.0.0.1]
     keyspace: migrations_keyspace_test
     create_keyspace: true
     replication_strategy: "{'class': 'SimpleStrategy', 'replication_factor': '1'}"

@@ -1,8 +1,15 @@
-sudo: false
+sudo: required
 language: "python"
+services:
+  - docker
 python:
   - "2.7"
 before_install:
-  - "pip install tox"
+  - pip install tox
+  # https://github.com/zuazo/kitchen-in-travis-native/issues/1#issuecomment-142230889
+  - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
+  - docker run -d -p 127.0.0.1:9042:9042 -p 127.0.0.1:9160:9160 --name cdeploy-test-cass cassandra:2.1
+  - docker ps -a
+  - docker inspect cdeploy-test-cass
 script:
   - "tox"

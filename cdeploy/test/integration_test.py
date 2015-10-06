@@ -2,7 +2,7 @@ import unittest
 import os
 from cassandra.cluster import Cluster
 
-cluster = Cluster(['cassandra.local'])
+cluster = Cluster(['cassandra.local', 'localhost', '127.0.0.1'])
 session = cluster.connect()
 
 
